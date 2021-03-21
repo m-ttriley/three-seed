@@ -1,41 +1,37 @@
 /**
  * entry.js
- * 
- * This is the first file loaded. It sets up the Renderer, 
- * Scene and Camera. It also starts the render loop and 
+ *
+ * This is the first file loaded. It sets up the Renderer,
+ * Scene and Camera. It also starts the render loop and
  * handles window resizes.
- * 
+ *
  */
 
-import { WebGLRenderer, PerspectiveCamera, Scene, Vector3 } from 'three';
-import SeedScene from './objects/Scene.js';
+import {
+  WebGLRenderer, PerspectiveCamera, Scene, Vector3,
+} from 'three';
 
 const scene = new Scene();
 const camera = new PerspectiveCamera();
-const renderer = new WebGLRenderer({antialias: true});
-const seedScene = new SeedScene();
-
-// scene
-scene.add(seedScene);
+const renderer = new WebGLRenderer({ antialias: true });
 
 // camera
-camera.position.set(6,3,-10);
-camera.lookAt(new Vector3(0,0,0));
+camera.position.set(6, 3, -10);
+camera.lookAt(new Vector3(0, 0, 0));
 
 // renderer
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setClearColor(0x7ec0ee, 1);
 
 // render loop
-const onAnimationFrameHandler = (timeStamp) => {
+const onAnimationFrameHandler = () => {
   renderer.render(scene, camera);
-  seedScene.update && seedScene.update(timeStamp);
   window.requestAnimationFrame(onAnimationFrameHandler);
-}
+};
 window.requestAnimationFrame(onAnimationFrameHandler);
 
 // resize
-const windowResizeHanlder = () => { 
+const windowResizeHanlder = () => {
   const { innerHeight, innerWidth } = window;
   renderer.setSize(innerWidth, innerHeight);
   camera.aspect = innerWidth / innerHeight;
@@ -46,4 +42,29 @@ window.addEventListener('resize', windowResizeHanlder);
 
 // dom
 document.body.style.margin = 0;
-document.body.appendChild( renderer.domElement );
+document.body.appendChild(renderer.domElement);
+
+// adds video record option
+document.body.insertAdjacentHTML('beforeend', '<video></video>');
+
+const canvas = document.body.querySelector('canvas');
+const video = document.body.querySelector('video');
+const videoStream = canvas.captureStream(60);
+
+const mediaRecorder = new MediaRecorder(videoStream);
+
+let chunks = [];
+mediaRecorder.ondataavailable = (e) => {
+  chunks.push(e.data);
+};
+
+mediaRecorder.onstop = () => {
+  const blob = new Blob(chunks, { type: 'video/mp4' }); // other types are available such as 'video/webm' for instance, see the doc for more info
+  chunks = [];
+  const videoURL = URL.createObjectURL(blob);
+  video.src = videoURL;
+};
+
+window.mediaRecorder = mediaRecorder;
+mediaRecorder.start();
+setTimeout(() => mediaRecorder.stop(), 10000);
