@@ -1,22 +1,4 @@
 /* eslint-disable no-restricted-syntax */
-/**
- * ShaderMaterial:
-  const material = new ShaderMaterial({
-  uniforms,
-  vertexShader,
-  fragmentShader,
-});
- */
-
-/**
- * entry.js
- *
- * This is the first file loaded. It sets up the Renderer,
- * Scene and Camera. It also starts the render loop and
- * handles window resizes.
- *
- */
-
 import * as THREE from 'three';
 import vertexShader from './shaders/vertexShader';
 import fragmentShader from './shaders/domainWarp';
